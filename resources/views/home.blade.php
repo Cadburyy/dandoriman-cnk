@@ -61,26 +61,24 @@ $isStandardTeknisi = $isTeknisi && !$isAdmin && !$isTeknisiAdmin;
         transition: opacity 0.5s ease-in-out;
     }
 
-    /* New Keyframes for Hard Blinking Color Change */
     @keyframes disco-blink {
-        0% { background-color: rgba(255, 0, 0, 0.3); }     /* Red */
-        16% { background-color: rgba(255, 165, 0, 0.3); }   /* Orange */
-        33% { background-color: rgba(255, 255, 0, 0.3); }   /* Yellow */
-        50% { background-color: rgba(0, 128, 0, 0.3); }     /* Green */
-        66% { background-color: rgba(0, 0, 255, 0.3); }     /* Blue */
-        83% { background-color: rgba(75, 0, 130, 0.3); }    /* Indigo/Violet */
-        100% { background-color: rgba(255, 0, 0, 0.3); }    /* Loop back to Red */
+        0% { background-color: rgba(255, 0, 0, 0.3); }
+        16% { background-color: rgba(255, 165, 0, 0.3); }
+        33% { background-color: rgba(255, 255, 0, 0.3); }
+        50% { background-color: rgba(0, 128, 0, 0.3); }
+        66% { background-color: rgba(0, 0, 255, 0.3); }
+        83% { background-color: rgba(75, 0, 130, 0.3); }
+        100% { background-color: rgba(255, 0, 0, 0.3); }
     }
     
     #disco-overlay.active {
-        animation: disco-blink 2s infinite step-end; /* Cycle all 6 colors every 2 seconds, with no smooth transition */
+        animation: disco-blink 2s infinite step-end;
         opacity: 1;
         transition: opacity 0.5s ease-in-out;
         pointer-events: none;
     }
 </style>
 
-{{-- ADDED THE MISSING DISCO OVERLAY ELEMENT --}}
 @if($isView)
 <div id="disco-overlay"></div>
 @endif
@@ -95,7 +93,7 @@ $isStandardTeknisi = $isTeknisi && !$isAdmin && !$isTeknisiAdmin;
                     <div class="card-body d-flex flex-column justify-content-center align-items-center">
                         <i class="fas fa-clipboard-list fa-3x mb-2 text-info"></i>
                         <h5 class="card-title text-dark"><strong>Dandory Tickets</strong></h5>
-                        <p class="card-text text-muted"><strong>View and manage your dandory tickets.</strong></p>
+                        <p class="card-text text-muted"><strong>Melihat dan manage tiket Dandori.</strong></p>
                     </div>
                 </div>
             </a>

@@ -73,15 +73,15 @@
                         {{ $dandory->qty_pcs }}
                     </div>
                     <div class="col-md-6 mb-3">
-                        <strong>Planning Shift:</strong><br>
+                        <strong>Planning Shift/Mulai Pengantian Dies:</strong><br>
                         {{ $dandory->planning_shift ?? 'N/A' }}
                     </div>
                     <div class="col-md-6 mb-3">
-                        <strong>Dies Type:</strong><br>
+                        <strong>Dies Type/Tipe Dies:</strong><br>
                         <span class="badge bg-secondary">{{ strtoupper($dandory->dies_type) }}</span>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <strong>Est. Completion Time:</strong><br>
+                        <strong>EEstimasi Selesai Pengerjaan:</strong><br>
                         <span class="badge bg-info text-dark">{{ $dandory->estimate_completion ?? 'N/A' }}</span>
                     </div>
 

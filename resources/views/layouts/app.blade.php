@@ -312,7 +312,7 @@ $dropdownTextColor = getTextColor($dropdownBgColor);
 
                             @if($isAdmin || $isRequestor || $isTeknisi || $isTeknisiAdmin)
                                 <li>
-                                    <a class="nav-link" href="{{ route('dandories.index') }}">Dandory Tickets</a>
+                                    <a class="nav-link" href="{{ route('dandories.index') }}">Dandori</a>
                                 </li>
                             @endif
 

@@ -1,8 +1,7 @@
 # Dandori Jira
-
 A **Laravel-based project** that mimics the core functionalities of a task management tool.
 
----
+Eng Ver ---
 
 ## 🚀 Setup Instructions
 
@@ -101,3 +100,5 @@ The application will now be running and accessible at [http://localhost:8000](ht
 
   * "Status Ticket" chart
   * Table of WIP (Work in Progress) tickets on the homepage
+
+Indo Ver ---

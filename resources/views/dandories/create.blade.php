@@ -117,7 +117,7 @@
                     <div class="card bg-light p-3 border-info">
                         <strong>Estimasi Selesai Pengerjaan:</strong>
                         <span id="estimated-completion-display" class="fs-4 text-info fw-bold">N/A</span>
-                        <small class="text-muted">Calculated based on Planning Shift + Dies Type duration.</small>
+                        <small class="text-muted">Dihitung berdasarkan Planning Shift + Durasi Tipe Dies.</small>
                     </div>
                 </div>
 
