@@ -100,5 +100,4 @@ The application will now be running and accessible at [http://localhost:8000](ht
 
   * "Status Ticket" chart
   * Table of WIP (Work in Progress) tickets on the homepage
-
-Indo Ver ---
+  
