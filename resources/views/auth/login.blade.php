@@ -11,7 +11,7 @@
                     </div>
 
                     <div class="col-12 p-4">
-                        <h4 class="mb-4 text-center">{{ __('Login') }}</h4>
+                        <h4 class="mb-4 text-center">{{ __('Dandori Ticket') }}</h4>
 
                         <form method="POST" action="{{ route('login') }}">
                             @csrf
