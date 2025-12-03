@@ -90,154 +90,187 @@ $isStandardTeknisi = $isTeknisi && !$isAdmin && !$isTeknisiAdmin;
 <div id="disco-overlay"></div>
 @endif
 
-<div class="container py-3">
+<div class="{{ $isView ? 'container-fluid px-4' : 'container' }} py-3">
     <h2 class="text-center mb-2 text-dark"><strong>Welcome, {{ $user->name }} 👋</strong></h2>
-    <div class="row row-cols-1 row-cols-md-3 g-3 justify-content-center mt-3">
-        @if($isAdmin || $isRequestor || $isTeknisi || $isTeknisiAdmin)
-        <div class="col-md-4">
-            <a href="{{ route('dandories.index') }}" class="text-decoration-none card-link-hover">
-                <div class="card h-100 text-center shadow-sm p-3">
-                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
-                        <i class="fas fa-clipboard-list fa-3x mb-2 text-info"></i>
-                        <h5 class="card-title text-dark"><strong>Dandory Tickets</strong></h5>
-                        <p class="card-text text-muted"><strong>Melihat dan manage tiket Dandori.</strong></p>
-                    </div>
-                </div>
-            </a>
-        </div>
-        @endif
-    </div>
-    @if (session('status'))
-        <div class="alert alert-success text-center mt-3" role="alert">
-            <strong>{{ session('status') }}</strong>
-        </div>
-    @endif
-    <div class="row">
-        <div class="row g-3 justify-content-center">
-            <div class="col-lg-6 col-md-6 mb-3">
+
+    @if($isView)
+        <div class="row mt-3">
+            <div class="col-lg-4 col-md-5 mb-3">
                 <div class="card h-100 p-3 shadow-sm">
                     <div class="card-header text-center">
                         <h5><strong>Status Ticket</strong></h5>
                     </div>
                     <div class="card-body d-flex flex-column align-items-center">
-                        <div class="row w-100 g-3 d-flex align-items-center justify-content-center">
-                            <div class="col-md-6 d-flex justify-content-center align-items-center">
-                                <div class="chart-container">
-                                    <canvas id="ticketStatusChart"></canvas>
-                                </div>
+                        <div class="w-100 d-flex flex-column align-items-center justify-content-center">
+                            <div class="chart-container mb-3">
+                                <canvas id="ticketStatusChart"></canvas>
                             </div>
-                            <div class="col-md-6 d-flex justify-content-center">
-                                <ul class="list-unstyled mt-2 w-100">
-                                    @foreach($ticketStatusChartData['labels'] as $key => $label)
-                                    <li>
-                                        <span style="display:inline-block;width:10px;height:10px;background-color:{{ $ticketStatusChartData['colors'][$key] }};margin-right:5px;border-radius:50%;"></span>
-                                        <strong>{{ $label }}: {{ $ticketStatusChartData['data'][$key] }}</strong>
-                                    </li>
-                                    @endforeach
-                                </ul>
-                            </div>
+                            <ul class="list-unstyled w-100">
+                                @foreach($ticketStatusChartData['labels'] as $key => $label)
+                                <li>
+                                    <span style="display:inline-block;width:10px;height:10px;background-color:{{ $ticketStatusChartData['colors'][$key] }};margin-right:5px;border-radius:50%;"></span>
+                                    <strong>{{ $label }}: {{ $ticketStatusChartData['data'][$key] }}</strong>
+                                </li>
+                                @endforeach
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
-            @if(!$isView)
-            <div class="col-lg-6 col-md-6 mb-3">
+
+            <div class="col-lg-8 col-md-7 mb-3">
+                {{-- Added mb-2 to header to show the line clearly separated from table --}}
                 <div class="card h-100 p-3 shadow-sm">
-                    <div class="card-header text-center">
-                        <h5><strong>Dandoriman Ticket</strong></h5>
+                    <div class="card-header text-center mb-2">
+                        <h5><strong>WIP Dandory Tickets</strong></h5>
                     </div>
-                    <div class="card-body d-flex flex-column align-items-center">
-                        <div class="row w-100 g-3 d-flex align-items-center justify-content-center">
-                            <div class="col-md-6 d-flex justify-content-center align-items-center">
-                                <div class="chart-container">
-                                    <canvas id="dandoriManChart"></canvas>
-                                </div>
-                            </div>
-                            <div class="col-md-6 d-flex justify-content-center">
-                                <ul class="list-unstyled mt-2 w-100">
-                                    @foreach($dandoriManChartData['labels'] as $key => $label)
-                                    <li>
-                                        <span style="display:inline-block;width:10px;height:10px;background-color:{{ $dandoriManChartData['colors'][$key] }};margin-right:5px;border-radius:50%;"></span>
-                                        <strong>{{ $label }}: {{ $dandoriManChartData['data'][$key] }}</strong>
-                                    </li>
-                                    @endforeach
-                                </ul>
-                            </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive" style="height: 75vh; overflow-y: auto;">
+                            <table class="table table-bordered table-striped align-middle mb-0">
+                                <thead class="table-light sticky-top" style="top: 0; z-index: 1;">
+                                    <tr>
+                                        <th class="text-dark"><strong>ID</strong></th>
+                                        <th class="text-dark"><strong>Line</strong></th>
+                                        <th class="text-dark"><strong>Requestor</strong></th>
+                                        <th class="text-dark"><strong>Customer</strong></th>
+                                        <th class="text-dark"><strong>Nama Part</strong></th>
+                                        <th class="text-dark"><strong>No Part</strong></th>
+                                        <th class="text-dark"><strong>Proses</strong></th>
+                                        <th class="text-dark"><strong>Mesin</strong></th>
+                                        <th class="text-dark"><strong>Qty</strong></th>
+                                        <th class="text-dark"><strong>Shift</strong></th>
+                                        <th class="text-dark"><strong>Status</strong></th>
+                                        <th class="text-dark"><strong>Dandori Man</strong></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dandori-table-body">
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+    @else
+        {{-- STANDARD LAYOUT FOR OTHER ROLES --}}
+        <div class="row row-cols-1 row-cols-md-3 g-3 justify-content-center mt-3">
+            @if($isAdmin || $isRequestor || $isTeknisi || $isTeknisiAdmin)
+            <div class="col-md-4">
+                <a href="{{ route('dandories.index') }}" class="text-decoration-none card-link-hover">
+                    <div class="card h-100 text-center shadow-sm p-3">
+                        <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                            <i class="fas fa-clipboard-list fa-3x mb-2 text-info"></i>
+                            <h5 class="card-title text-dark"><strong>Dandory Tickets</strong></h5>
+                            <p class="card-text text-muted"><strong>Melihat dan manage tiket Dandori.</strong></p>
+                        </div>
+                    </div>
+                </a>
             </div>
             @endif
         </div>
-    </div>
 
-    @if(!$isView)
-    <div class="row mt-3">
-        <div class="col-12">
-            <div class="card h-100 p-3 shadow-sm">
-                <div class="card-header text-center">
-                    <h5><strong>Daily, Weekly & Monthly Tickets</strong></h5>
+        @if (session('status'))
+            <div class="alert alert-success text-center mt-3" role="alert">
+                <strong>{{ session('status') }}</strong>
+            </div>
+        @endif
+
+        <div class="row mt-3">
+            <div class="row g-3 justify-content-center">
+                <div class="col-lg-6 col-md-6 mb-3">
+                    <div class="card h-100 p-3 shadow-sm">
+                        <div class="card-header text-center">
+                            <h5><strong>Status Ticket</strong></h5>
+                        </div>
+                        <div class="card-body d-flex flex-column align-items-center">
+                            <div class="row w-100 g-3 d-flex align-items-center justify-content-center">
+                                <div class="col-md-6 d-flex justify-content-center align-items-center">
+                                    <div class="chart-container">
+                                        <canvas id="ticketStatusChart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 d-flex justify-content-center">
+                                    <ul class="list-unstyled mt-2 w-100">
+                                        @foreach($ticketStatusChartData['labels'] as $key => $label)
+                                        <li>
+                                            <span style="display:inline-block;width:10px;height:10px;background-color:{{ $ticketStatusChartData['colors'][$key] }};margin-right:5px;border-radius:50%;"></span>
+                                            <strong>{{ $label }}: {{ $ticketStatusChartData['data'][$key] }}</strong>
+                                        </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="btn-group mb-2 d-flex justify-content-center" role="group">
-                        <button type="button" class="btn btn-sm btn-primary" id="dailyBtn"><strong>Daily</strong></button>
-                        <button type="button" class="btn btn-sm btn-secondary" id="weeklyBtn"><strong>Weekly</strong></button>
-                        <button type="button" class="btn btn-sm btn-secondary" id="monthlyBtn"><strong>Monthly</strong></button>
-                    </div>
-                    <div id="daily-filter-container" class="mb-2">
-                        <div class="row g-2">
-                            <div class="col">
-                                <input type="date" id="start-date" class="form-control form-control-sm" title="Start Date">
-                            </div>
-                            <div class="col">
-                                <input type="date" id="end-date" class="form-control form-control-sm" title="End Date">
-                            </div>
+                
+                <div class="col-lg-6 col-md-6 mb-3">
+                    <div class="card h-100 p-3 shadow-sm">
+                        <div class="card-header text-center">
+                            <h5><strong>Dandoriman Ticket</strong></h5>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div style="position: relative; height: 300px; width: 100%;">
-                                <canvas id="resolutionChart"></canvas>
+                        <div class="card-body d-flex flex-column align-items-center">
+                            <div class="row w-100 g-3 d-flex align-items-center justify-content-center">
+                                <div class="col-md-6 d-flex justify-content-center align-items-center">
+                                    <div class="chart-container">
+                                        <canvas id="dandoriManChart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 d-flex justify-content-center">
+                                    <ul class="list-unstyled mt-2 w-100">
+                                        @foreach($dandoriManChartData['labels'] as $key => $label)
+                                        <li>
+                                            <span style="display:inline-block;width:10px;height:10px;background-color:{{ $dandoriManChartData['colors'][$key] }};margin-right:5px;border-radius:50%;"></span>
+                                            <strong>{{ $label }}: {{ $dandoriManChartData['data'][$key] }}</strong>
+                                        </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-4 d-flex align-items-center">
-                            <ul id="resolution-legend" class="list-unstyled w-100"></ul>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    @endif
 
-    @if($isView)
-    <div class="row mt-4">
-        <h3 class="text-center mb-3 text-dark"><strong>WIP Dandory Tickets</strong></h3>
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th class="text-dark"><strong>ID</strong></th>
-                        <th class="text-dark"><strong>Line Production</strong></th>
-                        <th class="text-dark"><strong>Requestor</strong></th>
-                        <th class="text-dark"><strong>Customer</strong></th>
-                        <th class="text-dark"><strong>Nama Part</strong></th>
-                        <th class="text-dark"><strong>Nomor Part</strong></th>
-                        <th class="text-dark"><strong>Proses</strong></th>
-                        <th class="text-dark"><strong>Mesin</strong></th>
-                        <th class="text-dark"><strong>Qty (pcs)</strong></th>
-                        <th class="text-dark"><strong>Planning Shift</strong></th>
-                        <th class="text-dark"><strong>Status</strong></th>
-                        <th class="text-dark"><strong>Dandori Man</strong></th>
-                    </tr>
-                </thead>
-                <tbody id="dandori-table-body">
-                </tbody>
-            </table>
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card h-100 p-3 shadow-sm">
+                    <div class="card-header text-center">
+                        <h5><strong>Daily, Weekly & Monthly Tickets</strong></h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="btn-group mb-2 d-flex justify-content-center" role="group">
+                            <button type="button" class="btn btn-sm btn-primary" id="dailyBtn"><strong>Daily</strong></button>
+                            <button type="button" class="btn btn-sm btn-secondary" id="weeklyBtn"><strong>Weekly</strong></button>
+                            <button type="button" class="btn btn-sm btn-secondary" id="monthlyBtn"><strong>Monthly</strong></button>
+                        </div>
+                        <div id="daily-filter-container" class="mb-2">
+                            <div class="row g-2">
+                                <div class="col">
+                                    <input type="date" id="start-date" class="form-control form-control-sm" title="Start Date">
+                                </div>
+                                <div class="col">
+                                    <input type="date" id="end-date" class="form-control form-control-sm" title="End Date">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div style="position: relative; height: 300px; width: 100%;">
+                                    <canvas id="resolutionChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-center">
+                                <ul id="resolution-legend" class="list-unstyled w-100"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
     @endif
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
