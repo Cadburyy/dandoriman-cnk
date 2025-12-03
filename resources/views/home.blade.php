@@ -1,6 +1,10 @@
 @extends('layouts.app')
 
 @section('content')
+<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/whatwg-fetch@3.6.2/dist/fetch.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/resize-observer-polyfill@1.5.1/dist/ResizeObserver.global.js"></script>
+
 @php
 $user = Auth::user();
 $isAdmin = $user->hasRole('Admin');
@@ -44,8 +48,11 @@ $isStandardTeknisi = $isTeknisi && !$isAdmin && !$isTeknisiAdmin;
     strong { font-weight: bold; }
 
     .chart-container {
+        position: relative;
         width: 100%;
         max-width: 250px;
+        height: 250px;
+        margin: 0 auto;
     }
     
     #disco-overlay {
@@ -189,7 +196,9 @@ $isStandardTeknisi = $isTeknisi && !$isAdmin && !$isTeknisiAdmin;
                     </div>
                     <div class="row">
                         <div class="col-md-8">
-                            <canvas id="resolutionChart"></canvas>
+                            <div style="position: relative; height: 300px; width: 100%;">
+                                <canvas id="resolutionChart"></canvas>
+                            </div>
                         </div>
                         <div class="col-md-4 d-flex align-items-center">
                             <ul id="resolution-legend" class="list-unstyled w-100"></ul>
@@ -231,11 +240,13 @@ $isStandardTeknisi = $isTeknisi && !$isAdmin && !$isTeknisiAdmin;
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
 <script>
-    let ticketStatusChart, dandoriManChart, resolutionChart;
-    const ticketStatusChartData = {
+    var ticketStatusChart, dandoriManChart, resolutionChart;
+    
+    var ticketStatusChartData = {
         labels: @json($ticketStatusChartData['labels']),
         datasets: [{
             data: @json($ticketStatusChartData['data']),
@@ -243,7 +254,8 @@ $isStandardTeknisi = $isTeknisi && !$isAdmin && !$isTeknisiAdmin;
             hoverOffset: 4
         }]
     };
-    const dandoriManChartData = {
+
+    var dandoriManChartData = {
         labels: @json($dandoriManChartData['labels']),
         datasets: [{
             data: @json($dandoriManChartData['data']),
@@ -251,45 +263,49 @@ $isStandardTeknisi = $isTeknisi && !$isAdmin && !$isTeknisiAdmin;
             hoverOffset: 4
         }]
     };
-    const dailyTicketCounts = @json($dailyTicketCounts);
-    const monthlyTicketCounts = @json($monthlyTicketCounts);
-    const colorPalette = ['#007bff', '#28a745', '#dc3545', '#ffc107', '#17a2b8', '#6610f2', '#6c757d', '#fd7e14', '#e83e8c', '#6f42c1', '#20c997', '#d63384'];
 
-    const centerTextPlugin = {
+    var dailyTicketCounts = @json($dailyTicketCounts);
+    var monthlyTicketCounts = @json($monthlyTicketCounts);
+    var colorPalette = ['#007bff', '#28a745', '#dc3545', '#ffc107', '#17a2b8', '#6610f2', '#6c757d', '#fd7e14', '#e83e8c', '#6f42c1', '#20c997', '#d63384'];
+
+    var centerTextPlugin = {
         id: 'centerTextPlugin',
         beforeDraw: function(chart) {
-            const activeElements = chart.tooltip?.getActiveElements() || [];
-            if (activeElements.length === 0) return; {
-                const activeElement = activeElements[0];
-                const dataIndex = activeElement.index;
-                const value = chart.data.datasets[0].data[dataIndex];
-                const label = chart.data.labels[dataIndex];
-                const total = chart.data.datasets[0].data.reduce((sum, val) => sum + val, 0);
-                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+            var activeElements = chart.tooltip && chart.tooltip.getActiveElements() ? chart.tooltip.getActiveElements() : [];
+            if (activeElements.length === 0) return;
+            
+            var activeElement = activeElements[0];
+            var dataIndex = activeElement.index;
+            var value = chart.data.datasets[0].data[dataIndex];
+            var label = chart.data.labels[dataIndex];
+            
+            var total = chart.data.datasets[0].data.reduce(function(sum, val) { return sum + val; }, 0);
+            var percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
 
-                const ctx = chart.ctx;
-                ctx.save();
-                ctx.font = 'bolder 1.5rem sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
-                const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
+            var ctx = chart.ctx;
+            ctx.save();
+            ctx.font = 'bolder 1.5rem sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            var centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
+            var centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
 
-                ctx.fillStyle = chart.data.datasets[0].backgroundColor[dataIndex];
-                ctx.fillText(`${percentage}%`, centerX, centerY - 15);
+            ctx.fillStyle = chart.data.datasets[0].backgroundColor[dataIndex];
+            ctx.fillText(percentage + '%', centerX, centerY - 15);
 
-                ctx.font = '1rem sans-serif';
-                ctx.fillStyle = '#6c757d';
-                ctx.fillText(label, centerX, centerY + 15);
-                ctx.restore();
-            }
+            ctx.font = '1rem sans-serif';
+            ctx.fillStyle = '#6c757d';
+            ctx.fillText(label, centerX, centerY + 15);
+            ctx.restore();
         }
     };
 
     Chart.register(centerTextPlugin);
 
     function createDoughnutChart(chartId, chartData) {
-        const ctx = document.getElementById(chartId).getContext('2d');
+        var canvas = document.getElementById(chartId);
+        if(!canvas) return;
+        var ctx = canvas.getContext('2d');
         if (Chart.getChart(chartId)) {
             Chart.getChart(chartId).destroy();
         }
@@ -300,33 +316,28 @@ $isStandardTeknisi = $isTeknisi && !$isAdmin && !$isTeknisiAdmin;
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        enabled: false,
-                    },
+                    legend: { display: false },
+                    tooltip: { enabled: false },
                 },
             }
         });
     }
     
     document.addEventListener('DOMContentLoaded', function() {
-        const legendContainer = document.getElementById('resolution-legend');
-        const dailyBtn = document.getElementById('dailyBtn');
-        const weeklyBtn = document.getElementById('weeklyBtn');
-        const monthlyBtn = document.getElementById('monthlyBtn');
-        const allButtons = [dailyBtn, weeklyBtn, monthlyBtn];
-        const dailyFilterContainer = document.getElementById('daily-filter-container');
-        const startDateInput = document.getElementById('start-date');
-        const endDateInput = document.getElementById('end-date');
-        const today = new Date();
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(today.getDate() - 29);
-        const todayStr = today.toISOString().slice(0, 10);
-        const sevenDaysAgo = new Date(today);
+        var legendContainer = document.getElementById('resolution-legend');
+        var dailyBtn = document.getElementById('dailyBtn');
+        var weeklyBtn = document.getElementById('weeklyBtn');
+        var monthlyBtn = document.getElementById('monthlyBtn');
+        var allButtons = [dailyBtn, weeklyBtn, monthlyBtn];
+        var dailyFilterContainer = document.getElementById('daily-filter-container');
+        var startDateInput = document.getElementById('start-date');
+        var endDateInput = document.getElementById('end-date');
+        
+        var today = new Date();
+        var todayStr = today.toISOString().slice(0, 10);
+        var sevenDaysAgo = new Date(today);
         sevenDaysAgo.setDate(today.getDate() - 6);
-        const sevenDaysAgoStr = sevenDaysAgo.toISOString().slice(0, 10);
+        var sevenDaysAgoStr = sevenDaysAgo.toISOString().slice(0, 10);
 
         if (startDateInput) {
             startDateInput.setAttribute('max', todayStr);
@@ -337,32 +348,38 @@ $isStandardTeknisi = $isTeknisi && !$isAdmin && !$isTeknisiAdmin;
 
         function setActiveButton(activeButton) {
             if (!activeButton) return;
-            allButtons.forEach(btn => {
-                btn.classList.remove('btn-primary');
-                btn.classList.add('btn-secondary');
+            allButtons.forEach(function(btn) {
+                if(btn) {
+                    btn.classList.remove('btn-primary');
+                    btn.classList.add('btn-secondary');
+                }
             });
             activeButton.classList.remove('btn-secondary');
             activeButton.classList.add('btn-primary');
         }
 
         function tooltipWithPercentage(context) {
-            const dataset = context.dataset.data;
-            const total = dataset.reduce((a, b) => a + b, 0);
-            const value = context.raw;
-            const percentage = total > 0 ? ((value / total) * 100).toFixed(2) : 0;
+            var dataset = context.dataset.data;
+            var total = dataset.reduce(function(a, b) { return a + b; }, 0);
+            var value = context.raw;
+            var percentage = total > 0 ? ((value / total) * 100).toFixed(2) : 0;
             if (context.chart.config.type === 'doughnut') {
-                if (value === 0) {
-                    return '';
-                }
-                return `${context.label}: ${value} (${percentage}%)`;
+                if (value === 0) return '';
+                return context.label + ': ' + value + ' (' + percentage + '%)';
             }
-            return `${context.label}: ${value}`;
+            return context.label + ': ' + value;
         }
 
         function createResolutionChart(type, data, labels, chartLabel) {
+            var canvas = document.getElementById('resolutionChart');
+            if (!canvas) return;
+
             if (resolutionChart) resolutionChart.destroy();
-            const ctx = document.getElementById('resolutionChart').getContext('2d');
-            const resolutionColors = labels.map((_, index) => colorPalette[index % colorPalette.length]);
+            var ctx = canvas.getContext('2d');
+            var resolutionColors = labels.map(function(_, index) { 
+                return colorPalette[index % colorPalette.length]; 
+            });
+            
             resolutionChart = new Chart(ctx, {
                 type: type,
                 data: {
@@ -377,22 +394,17 @@ $isStandardTeknisi = $isTeknisi && !$isAdmin && !$isTeknisiAdmin;
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     scales: {
                         y: {
                             beginAtZero: true,
-                            ticks: {
-                                precision: 0
-                            }
+                            ticks: { precision: 0 }
                         }
                     },
                     plugins: {
-                        legend: {
-                            display: false
-                        },
+                        legend: { display: false },
                         tooltip: {
-                            callbacks: {
-                                label: tooltipWithPercentage
-                            }
+                            callbacks: { label: tooltipWithPercentage }
                         }
                     }
                 }
@@ -403,22 +415,23 @@ $isStandardTeknisi = $isTeknisi && !$isAdmin && !$isTeknisiAdmin;
         function updateLegend(labels, data, colors) {
             if (!legendContainer) return;
             legendContainer.innerHTML = '';
-            labels.forEach((label, index) => {
-                const color = colors[index % colors.length];
-                legendContainer.innerHTML += `<li><span style="display:inline-block;width:10px;height:10px;background-color:${color};margin-right:5px;border-radius:50%;"></span><strong>${label}: ${data[index]} tickets</strong></li>`;
+            labels.forEach(function(label, index) {
+                var color = colors[index % colors.length];
+                legendContainer.innerHTML += '<li><span style="display:inline-block;width:10px;height:10px;background-color:' + color + ';margin-right:5px;border-radius:50%;"></span><strong>' + label + ': ' + data[index] + ' tickets</strong></li>';
             });
         }
 
         function filterDailyByRange(startDate, endDate) {
-            const labels = [];
-            const data = [];
-            const start = new Date(startDate);
-            const end = new Date(endDate);
-            const currentDate = new Date(start);
+            var labels = [];
+            var data = [];
+            var start = new Date(startDate);
+            var end = new Date(endDate);
+            var currentDate = new Date(start);
+            
             while (currentDate <= end) {
-                const key = currentDate.toISOString().slice(0, 10);
+                var key = currentDate.toISOString().slice(0, 10);
                 labels.push(currentDate.toLocaleDateString('id-ID', { weekday: 'short', day: '2-digit', month: '2-digit' }));
-                data.push(dailyTicketCounts[key] ?? 0);
+                data.push(dailyTicketCounts[key] || 0);
                 currentDate.setDate(currentDate.getDate() + 1);
             }
             createResolutionChart('bar', data, labels, 'Daily Tickets');
@@ -432,24 +445,29 @@ $isStandardTeknisi = $isTeknisi && !$isAdmin && !$isTeknisiAdmin;
         }
 
         function filterWeekly() {
-            if (dailyFilterContainer) {
-                dailyFilterContainer.style.display = 'none';
-            }
-            const weeklyData = [], weeklyLabels = [];
-            const today = new Date();
+            if (dailyFilterContainer) dailyFilterContainer.style.display = 'none';
+            
+            var weeklyData = [];
+            var weeklyLabels = [];
+            var today = new Date();
             today.setHours(0, 0, 0, 0);
-            for (let i = 3; i >= 0; i--) {
-                const endDate = new Date(today);
+            
+            for (var i = 3; i >= 0; i--) {
+                var endDate = new Date(today);
                 endDate.setDate(today.getDate() - (7 * (3 - i)));
-                const startDate = new Date(endDate);
+                var startDate = new Date(endDate);
                 startDate.setDate(endDate.getDate() - 6);
-                const label = `Week ${i + 1} (${startDate.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit'})} - ${endDate.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit'})})`;
+                
+                var label = 'Week ' + (i + 1) + ' (' + startDate.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit'}) + ' - ' + endDate.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit'}) + ')';
                 weeklyLabels.unshift(label);
-                let total = 0;
-                for (const [date, count] of Object.entries(dailyTicketCounts)) {
-                    const [y, m, d] = date.split('-');
-                    const ticketDate = new Date(y, m - 1, d);
-                    if (ticketDate >= startDate && ticketDate <= endDate) total += count;
+                
+                var total = 0;
+                for (var key in dailyTicketCounts) {
+                    if (dailyTicketCounts.hasOwnProperty(key)) {
+                        var parts = key.split('-');
+                        var ticketDate = new Date(parts[0], parts[1] - 1, parts[2]);
+                        if (ticketDate >= startDate && ticketDate <= endDate) total += dailyTicketCounts[key];
+                    }
                 }
                 weeklyData.unshift(total);
             }
@@ -457,77 +475,54 @@ $isStandardTeknisi = $isTeknisi && !$isAdmin && !$isTeknisiAdmin;
         }
 
         function filterMonthly() {
-            if (dailyFilterContainer) {
-                dailyFilterContainer.style.display = 'none';
-            }
-            const labels = [], data = [];
-            const today = new Date();
+            if (dailyFilterContainer) dailyFilterContainer.style.display = 'none';
+            var labels = []; 
+            var data = [];
+            var today = new Date();
             today.setHours(0, 0, 0, 0);
-            for (let i = 11; i >= 0; i--) {
-                const month = new Date(today);
+            
+            for (var i = 11; i >= 0; i--) {
+                var month = new Date(today);
                 month.setMonth(today.getMonth() - i);
-                const key = month.toISOString().slice(0, 7);
+                var key = month.toISOString().slice(0, 7);
                 labels.push(month.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }));
-                data.push(monthlyTicketCounts[key] ?? 0);
+                data.push(monthlyTicketCounts[key] || 0);
             }
             createResolutionChart('bar', data, labels, 'Monthly Tickets');
         }
 
-        if (dailyBtn) {
-            dailyBtn.addEventListener('click', () => {
-                setActiveButton(dailyBtn);
-                filterDaily();
-            });
-        }
-        if (weeklyBtn) {
-            weeklyBtn.addEventListener('click', () => {
-                setActiveButton(weeklyBtn);
-                filterWeekly();
-            });
-        }
-        if (monthlyBtn) {
-            monthlyBtn.addEventListener('click', () => {
-                setActiveButton(monthlyBtn);
-                filterMonthly();
-            });
-        }
-        if (startDateInput) {
-            startDateInput.addEventListener('change', () => {
-                filterDailyByRange(startDateInput.value, endDateInput.value);
-            });
-        }
-        if (endDateInput) {
-            endDateInput.addEventListener('change', () => {
-                filterDailyByRange(startDateInput.value, endDateInput.value);
-            });
-        }
+        if (dailyBtn) dailyBtn.addEventListener('click', function() { setActiveButton(dailyBtn); filterDaily(); });
+        if (weeklyBtn) weeklyBtn.addEventListener('click', function() { setActiveButton(weeklyBtn); filterWeekly(); });
+        if (monthlyBtn) monthlyBtn.addEventListener('click', function() { setActiveButton(monthlyBtn); filterMonthly(); });
+        
+        if (startDateInput) startDateInput.addEventListener('change', function() { filterDailyByRange(startDateInput.value, endDateInput.value); });
+        if (endDateInput) endDateInput.addEventListener('change', function() { filterDailyByRange(startDateInput.value, endDateInput.value); });
 
-        const isView = @json($isView);
-        const isAdminOrTeknisi = @json($isAdmin || $isTeknisi || $isTeknisiAdmin);
-        const isRequestor = @json($isRequestor);
+        var isView = @json($isView);
+        var isAdminOrTeknisi = @json($isAdmin || $isTeknisi || $isTeknisiAdmin);
+        var isRequestor = @json($isRequestor);
 
-        let ticketStatusChartInstance = null;
+        var ticketStatusChartInstance = null;
         if (isView || isAdminOrTeknisi || isRequestor) {
             ticketStatusChartInstance = createDoughnutChart('ticketStatusChart', ticketStatusChartData);
 
-            function updateTicketStatusChart() {
+            setInterval(function updateTicketStatusChart() {
                 fetch('{{ route('chart.data') }}')
-                    .then(response => response.json())
-                    .then(data => {
+                    .then(function(response) { return response.json(); })
+                    .then(function(data) {
                         if (ticketStatusChartInstance) {
                             ticketStatusChartInstance.data.datasets[0].data = data.ticketStatusChartData.data;
                             ticketStatusChartInstance.update();
 
-                            const legendItems = document.querySelectorAll('.card-body ul.list-unstyled li');
-                            data.ticketStatusChartData.data.forEach((val, idx) => {
+                            var legendItems = document.querySelectorAll('.card-body ul.list-unstyled li');
+                            data.ticketStatusChartData.data.forEach(function(val, idx) {
                                 if (legendItems[idx]) {
-                                    legendItems[idx].querySelector('strong').innerHTML = `${data.ticketStatusChartData.labels[idx]}: ${val}`;
+                                    legendItems[idx].querySelector('strong').innerHTML = data.ticketStatusChartData.labels[idx] + ': ' + val;
                                 }
                             });
                         }
                     });
-            }
-            setInterval(updateTicketStatusChart, 10000);
+            }, 10000);
         }
 
         if (isAdminOrTeknisi || isRequestor) {
@@ -541,61 +536,59 @@ $isStandardTeknisi = $isTeknisi && !$isAdmin && !$isTeknisiAdmin;
         }
 
         if (isView) {
-            let lastTableState = "";
-            const tableBody = document.getElementById('dandori-table-body');
-            const discoOverlay = document.getElementById('disco-overlay');
+            var lastTableState = "";
+            var tableBody = document.getElementById('dandori-table-body');
+            var discoOverlay = document.getElementById('disco-overlay');
 
-            async function fetchAndUpdateTable() {
-                try {
-                    const response = await fetch('{{ route('home.dandories.data') }}');
-                    const data = await response.json();
+            function fetchAndUpdateTable() {
+                fetch('{{ route('home.dandories.data') }}')
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    var filteredData = data.filter(function(ticket) { return ticket.status !== 'FINISH'; });
                     
-                    const filteredData = data.filter(ticket => ticket.status !== 'FINISH');
-                    
-                    const currentTableState = JSON.stringify(filteredData.map(ticket => {
+                    var currentTableState = JSON.stringify(filteredData.map(function(ticket) {
                         return {
                             id: ticket.ddcnk_id,
                             status: ticket.status,
                             assigned_to: ticket.assigned_to_name
                         };
-                    }).sort((a,b) => a.id.localeCompare(b.id)));
+                    }).sort(function(a,b) { return a.id.localeCompare(b.id); }));
                     
                     if (lastTableState !== "" && currentTableState !== lastTableState) {
                         if (discoOverlay) {
                             discoOverlay.classList.add('active'); 
-                            setTimeout(() => {
+                            setTimeout(function() {
                                 discoOverlay.classList.remove('active');
                             }, 30000); 
                         }
                     }
 
                     tableBody.innerHTML = '';
-                    filteredData.forEach(ticket => {
-                        const row = document.createElement('tr');
+                    filteredData.forEach(function(ticket) {
+                        var row = document.createElement('tr');
                         row.setAttribute('data-status', ticket.status);
 
-                        row.innerHTML = `
-                            <td><strong>${ticket.ddcnk_id}</strong></td>
-                            <td><strong>${ticket.line_production}</strong></td>
-                            <td><strong>${ticket.requestor}</strong></td>
-                            <td><strong>${ticket.customer}</strong></td>
-                            <td><strong>${ticket.nama_part}</strong></td>
-                            <td><strong>${ticket.nomor_part}</strong></td>
-                            <td><strong>${ticket.proses}</strong></td>
-                            <td><strong>${ticket.mesin}</strong></td>
-                            <td><strong>${ticket.qty_pcs}</strong></td>
-                            <td><strong>${ticket.planning_shift}</strong></td>
-                            <td><strong>${ticket.status}</strong></td>
-                            <td><strong>${ticket.assigned_to_name}</strong></td>
-                        `;
+                        row.innerHTML = 
+                            '<td><strong>' + ticket.ddcnk_id + '</strong></td>' +
+                            '<td><strong>' + ticket.line_production + '</strong></td>' +
+                            '<td><strong>' + ticket.requestor + '</strong></td>' +
+                            '<td><strong>' + ticket.customer + '</strong></td>' +
+                            '<td><strong>' + ticket.nama_part + '</strong></td>' +
+                            '<td><strong>' + ticket.nomor_part + '</strong></td>' +
+                            '<td><strong>' + ticket.proses + '</strong></td>' +
+                            '<td><strong>' + ticket.mesin + '</strong></td>' +
+                            '<td><strong>' + ticket.qty_pcs + '</strong></td>' +
+                            '<td><strong>' + ticket.planning_shift + '</strong></td>' +
+                            '<td><strong>' + ticket.status + '</strong></td>' +
+                            '<td><strong>' + ticket.assigned_to_name + '</strong></td>';
                         tableBody.appendChild(row);
                     });
 
                     lastTableState = currentTableState;
-
-                } catch (error) {
+                })
+                .catch(function(error) {
                     console.error('Error fetching dandori tickets:', error);
-                }
+                });
             }
 
             fetchAndUpdateTable();
