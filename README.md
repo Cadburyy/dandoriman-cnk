@@ -1,4 +1,5 @@
 # Dandori Jira
+
 A **Laravel-based project** that mimics the core functionalities of a task management tool.
 
 ## 🚀 Setup Instructions
