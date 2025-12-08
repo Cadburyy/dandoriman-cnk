@@ -1,8 +1,6 @@
 # Dandori Jira
 A **Laravel-based project** that mimics the core functionalities of a task management tool.
 
-Eng Ver ---
-
 ## 🚀 Setup Instructions
 
 To get the **Dandori Jira** project running on your local machine, you need to follow a series of steps that cover backend and frontend setup. Since the project is for public use, you'll be downloading and configuring it rather than cloning it for personal development.
