@@ -26,9 +26,9 @@ First, ensure you have all the necessary software installed:
 6.  Generate a unique application key for security with `php artisan key:generate`.
 7.  Create a new database in **phpMyAdmin**, for example, `jira_db`.
 8.  Open the `.env` file and update the database settings to match your new database:
-      * `DB_DATABASE=jira_db`
-      * `DB_USERNAME=root`
-      * `DB_PASSWORD=`
+    * `DB_DATABASE=jira_db`
+    * `DB_USERNAME=root`
+    * `DB_PASSWORD=`
 
 -----
 
@@ -37,9 +37,9 @@ First, ensure you have all the necessary software installed:
 With the database configured, you can set it up with the required tables and initial data.
 
 1.  Run the migration and seeding commands: 
-`php artisan migrate:fresh`,
-`php artisan db:seed --class=PermissionTableSeeder`,
-`php artisan db:seed --class=CreateAdminUserSeeder`,
+    *`php artisan migrate:fresh`,
+    *`php artisan db:seed --class=PermissionTableSeeder`,
+    *`php artisan db:seed --class=CreateAdminUserSeeder`,
 3.  This command will create all the necessary tables and populate them with default data for roles, permissions, and a default admin user.
 
 -----
